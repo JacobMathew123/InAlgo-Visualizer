@@ -1,0 +1,7 @@
+Django>=5.1,<6.0
+requests>=2.31
+
+# The following are not required by the Gemini-powered chatbot. Uncomment
+# them only if you need local ML:
+# transformers>=4.40
+# torch>=2.2

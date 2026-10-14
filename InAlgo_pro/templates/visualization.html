@@ -1,0 +1,385 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InAlgo Visualizer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/visualization.css' %}?v={% now 'U' %}">
+    <link rel="stylesheet" href="{% static 'css/chatbot.css' %}?v={% now 'U' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+    {% include 'header.html' %}
+    <main class="viz-page">
+        <section class="viz-card">
+            <div class="viz-toolbar">
+                <div>
+                    <p class="eyebrow">Interactive DSA</p>
+                    <h1 id="page-title">Array Visualizer</h1>
+                </div>
+                <div class="control-group">
+                    <label for="structureSelect">Structure</label>
+                    <select id="structureSelect">
+                        <optgroup label="1. Heap Visualization">
+                            <option value="maxheap">Binary Max Heap</option>
+                            <option value="minheap">Binary Min Heap</option>
+                            <option value="binomialheap">Binomial Heap</option>
+                            <option value="fibonacciheap">Fibonacci Heap</option>
+                        </optgroup>
+                        <optgroup label="2. Tree Traversals">
+                            <option value="inorder">Inorder Traversal</option>
+                            <option value="preorder">Preorder Traversal</option>
+                            <option value="postorder">Postorder Traversal</option>
+                            <option value="levelorder">Level Order Traversal (BFS)</option>
+                        </optgroup>
+                        <optgroup label="3. Graph Traversals">
+                            <option value="bfs">Breadth-First Search (BFS)</option>
+                            <option value="dfs">Depth-First Search (DFS)</option>
+                        </optgroup>
+                        <optgroup label="4. Minimum Spanning Tree (MST)">
+                            <option value="prims">Prim's Algorithm</option>
+                            <option value="kruskals">Kruskal's Algorithm</option>
+                        </optgroup>
+                        <optgroup label="5. Shortest Path Algorithms">
+                            <option value="dijkstra">Dijkstra's Shortest Path</option>
+                            <option value="bellmanford">Bellman-Ford Algorithm</option>
+                            <option value="floydwarshall">Floyd-Warshall Algorithm</option>
+                            <option value="astar">A* Search Algorithm</option>
+                        </optgroup>
+                        <optgroup label="6. Other Graph Algorithms">
+                            <option value="cycledetection">Cycle Detection (DFS Back-Edge)</option>
+                            <option value="topologicalsort">Topological Sorting (Kahn's / In-Degree)</option>
+                            <option value="connectedcomponents">Connected Components</option>
+                        </optgroup>
+                        <optgroup label="7. Hashing">
+                            <option value="hashtable">Hash Table (Chaining / Buckets)</option>
+                        </optgroup>
+                        <optgroup label="8. Searching Algorithms">
+                            <option value="linearsearch">Linear Search</option>
+                            <option value="binarysearch">Binary Search</option>
+                        </optgroup>
+                        <optgroup label="9. Sorting Algorithms">
+                            <option value="bubblesort">Bubble Sort</option>
+                            <option value="selectionsort">Selection Sort</option>
+                            <option value="insertionsort">Insertion Sort</option>
+                            <option value="mergesort">Merge Sort</option>
+                            <option value="quicksort">Quick Sort</option>
+                            <option value="heapsort">Heap Sort</option>
+                            <option value="shellsort">Shell Sort</option>
+                            <option value="countingsort">Counting Sort</option>
+                            <option value="radixsort">Radix Sort</option>
+                            <option value="bucketsort">Bucket Sort</option>
+                        </optgroup>
+                        <optgroup label="Linear Data Structures">
+                            <option value="array">Array</option>
+                            <option value="stack">Stack</option>
+                            <option value="simplequeue">Simple Queue</option>
+                            <option value="circularqueue">Circular Queue</option>
+                            <option value="priorityqueue">Priority Queue</option>
+                            <option value="deque">Deque (Double-Ended Queue)</option>
+                            <option value="singlylinkedlist">Singly Linked List</option>
+                            <option value="doublylinkedlist">Doubly Linked List</option>
+                            <option value="circularlinkedlist">Circular Linked List</option>
+                        </optgroup>
+                        <optgroup label="Tree Data Structures">
+                            <option value="binarytree">Binary Tree</option>
+                            <option value="bst">Binary Search Tree (BST)</option>
+                            <option value="avltree">AVL Tree (Self-Balancing)</option>
+                            <option value="redblacktree">Red-Black Tree</option>
+                            <option value="btree">B-Tree (Multiway)</option>
+                            <option value="bplustree">B+ Tree (Index & Leaf Link)</option>
+                            <option value="prefixtree">Prefix Tree (Trie)</option>
+                            <option value="suffixtree">Suffix Tree</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+
+            <div class="viz-panel">
+                <div class="viz-stage-wrapper">
+                    <div class="viz-stage" role="region" aria-label="Scrollable data structure visualization" tabindex="0">
+                        <svg id="viz-svg" viewBox="0 0 860 420" role="img" aria-label="Data structure visualization"></svg>
+                    </div>
+
+                    <!-- Step Explanation Module (Below the Visualization Window) -->
+                    <div class="step-explanation-module" id="stepExplanationModule">
+                        <div class="step-module-header">
+                            <div class="step-meta">
+                                <span class="step-module-title">Step Explanation</span>
+                                <span id="stepBadge" class="step-pill">Frame 0 / 0</span>
+                            </div>
+                            <div class="step-module-tools">
+                                <button type="button" id="btnToggleAi" class="btn-ai-toggle off" title="Toggle AI Tutor Insight drawer">
+                                    <span class="ai-sparkle-icon">✨</span>
+                                    <span class="ai-toggle-text">AI Tutor</span>
+                                    <span class="ai-status-dot"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Primary Step Info (Immediate, 100% deterministic, 0ms) -->
+                        <div class="step-primary-box">
+                            <p id="statusLabel" class="status-text">Select an operation or click "Watch Example Video Demo".</p>
+                        </div>
+
+                        <!-- AI Tutor Deep Dive (Gemini AI live insight) -->
+                        <div class="step-ai-drawer collapsed" id="stepAiDrawer">
+                            <div class="ai-drawer-header">
+                                <span class="ai-gemini-tag">Gemini AI Tutor</span>
+                                <span class="ai-tip-tag">Algorithmic Insight</span>
+                            </div>
+                            <div id="aiInsightText" class="ai-insight-content">
+                                Play the animation or click any step to see live AI tutor reasoning and invariant breakdown.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video Player Control Deck -->
+                    <div class="video-control-deck">
+                        <div class="deck-top">
+                            <button id="btnAutoDemo" type="button" class="btn-demo-video">
+                                <span class="icon">🎬</span> Watch Example Video Demo
+                            </button>
+                            <div class="badge-legend" id="activeLegend">
+                                <span class="legend-dot default"></span> Default
+                                <span class="legend-dot active"></span> Active/Compare
+                                <span class="legend-dot sorted"></span> Sorted/Done
+                            </div>
+                        </div>
+
+                        <div class="timeline-row">
+                            <input type="range" id="timelineScrubber" min="0" max="0" value="0" step="1" aria-label="Animation timeline">
+                            <span id="stepCounter" class="step-counter">Frame 0 / 0</span>
+                        </div>
+
+                        <div class="controls-row">
+                            <div class="playback-buttons">
+                                <button id="btnReset" type="button" class="ctrl-btn" title="Reset Animation">
+                                    <span>🔄</span> Reset
+                                </button>
+                                <button id="btnStepBack" type="button" class="ctrl-btn" title="Previous Step">
+                                    <span>⏮️</span> Back
+                                </button>
+                                <button id="btnPlayPause" type="button" class="ctrl-btn main-play" title="Play / Pause">
+                                    <span id="playIcon">▶️</span> <span id="playLabel">Play</span>
+                                </button>
+                                <button id="btnStepForward" type="button" class="ctrl-btn" title="Next Step">
+                                    <span>⏭️</span> Next
+                                </button>
+                                <div class="narration-control">
+                                    <button id="btnNarration" type="button" class="ctrl-btn narration-control-btn"
+                                            aria-pressed="false" aria-describedby="narrationHelp narrationStatus"
+                                            aria-label="Turn on voice narration" title="Turn on voice narration">
+                                        <span aria-hidden="true">&#128266;</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="speed-control">
+                                <label for="speedSelect">Speed:</label>
+                                <select id="speedSelect" class="form-select form-select-sm">
+                                    <option value="2000">0.5x (Slow)</option>
+                                    <option value="1000" selected>1.0x (Normal)</option>
+                                    <option value="600">1.5x (Fast)</option>
+                                    <option value="300">2.0x (Ultra)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <aside class="viz-sidebar">
+                    <div>
+                        <h2>Operations</h2>
+                        <div id="operationButtons" class="button-group"></div>
+                    </div>
+                    <div class="input-group" id="valuesInputGroup" hidden>
+                        <label for="valuesInput" id="valuesInputLabel">Values</label>
+                        <textarea id="valuesInput" rows="3" placeholder="64, 34, 25, 12"></textarea>
+                        <small id="valuesInputHelp">Enter comma-separated values.</small>
+                    </div>
+                    <div class="input-group" id="graphNodesInputGroup" hidden>
+                        <label for="graphNodesInput">Nodes (read-only)</label>
+                        <input id="graphNodesInput" type="text" placeholder="1, 2, 3, 4" readonly aria-readonly="true">
+                    </div>
+                    <div class="input-group" id="graphEdgesInputGroup" hidden>
+                        <label for="graphEdgesInput">Edges (one per line)</label>
+                        <textarea id="graphEdgesInput" rows="4" placeholder="1, 2, 4&#10;2, 3, 1"></textarea>
+                        <small id="graphEdgesInputHelp">Use from,to,weight. Weight is optional.</small>
+                    </div>
+                    <div class="input-group" id="startNodeInputGroup" hidden>
+                        <label for="startNodeInput">Start node</label>
+                        <input id="startNodeInput" type="number" step="1" placeholder="1">
+                    </div>
+                    <div class="input-group" id="targetNodeInputGroup" hidden>
+                        <label for="targetNodeInput">Target node</label>
+                        <input id="targetNodeInput" type="number" step="1" placeholder="5">
+                    </div>
+                    <div class="input-group" id="valueInputGroup">
+                        <label for="valueInput">Value</label>
+                        <input id="valueInput" type="text" placeholder="e.g. 42">
+                    </div>
+                    <div class="input-group" id="positionInputGroup">
+                        <label for="positionInput">Position / Target</label>
+                        <input id="positionInput" type="number" min="0" placeholder="0">
+                    </div>
+                    <div class="pseudocode-card">
+                        <h3>Pseudocode Execution</h3>
+                        <pre id="pseudocodeBox"><code>// Operation execution lines will be highlighted here</code></pre>
+                    </div>
+                    <a id="structureNotesLink" class="notes-link"
+                       href="https://www.geeksforgeeks.org/dsa/array-data-structure-guide/"
+                       target="_blank" rel="noopener noreferrer">
+                        Click to read Array Notes
+                    </a>
+                </aside>
+            </div>
+        </section>
+
+        <section class="chatbot-section">
+            <div class="welcm">
+                <h2 id="head1">Ask Data Structure Questions to</h2>
+                <h2 id="head1"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-strava me-2" viewBox="0 0 16 16">
+                <path d="M6.731 0 2 9.125h2.788L6.73 5.497l1.93 3.628h2.766zm4.694 9.125-1.372 2.756L8.66 9.125H6.547L10.053 16l3.484-6.875z"/>
+            </svg>InAlgo AI Chatbot</h2>
+                <p>Get instant explanations, time complexity breakdowns, and ask follow-up questions about previous answers.</p>
+            </div>
+      
+            <div class="container mt-3">
+                <div class="chat-container" id="chatMessages">
+                    <div class="message bot-message">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-strava me-2" viewBox="0 0 16 16">
+                <path d="M6.731 0 2 9.125h2.788L6.73 5.497l1.93 3.628h2.766zm4.694 9.125-1.372 2.756L8.66 9.125H6.547L10.053 16l3.484-6.875z"/>
+            </svg>Welcome! Ask me any question about data structures, time complexity, or algorithm visualizer operations.
+                    </div>
+                    {% if question and response %}
+                    <div class="message user-message">
+                        <strong>You:</strong> {{question}}
+                    </div>
+                    <div class="message bot-message">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-strava me-2" viewBox="0 0 16 16">
+                <path d="M6.731 0 2 9.125h2.788L6.73 5.497l1.93 3.628h2.766zm4.694 9.125-1.372 2.756L8.66 9.125H6.547L10.053 16l3.484-6.875z"/>
+            </svg> {{response}}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="input-area">
+                    <form action="{% url 'chatbot' %}" method="post" id="chatForm" class="w-100 d-flex align-items-center">
+                        {% csrf_token %}
+                        <textarea id="chatInput" class="chat-input form-control" maxlength="4000" placeholder="Ask a question or follow up on the previous answer..." rows="1"></textarea>
+                        <button type="button" class="mic-btn" id="chatMicButton"
+                                aria-label="Ask a question using your microphone"
+                                aria-describedby="chatVoiceStatus"
+                                title="Ask a question using your microphone">
+                            <ion-icon name="mic-outline" aria-hidden="true"></ion-icon>
+                        </button>
+                        <button type="submit" class="send-btn" id="send_btn" title="Send Question">
+                            <ion-icon name="arrow-forward-circle-outline"></ion-icon>
+                        </button>
+                    </form>
+                </div>
+                <span id="chatVoiceStatus" class="visually-hidden" aria-live="polite"></span>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        window.initialDsType = "{{ ds_type|default:'array' }}";
+
+        $(document).ready(function(){
+            $("#chatMessages").show();
+        });
+        
+
+        document.addEventListener("DOMContentLoaded", function() {
+          if (window.sharedChatbotLoaded) return;
+          const chatForm = document.getElementById("chatForm");
+          const chatInput = document.getElementById("chatInput");
+          const chatMessages = document.getElementById("chatMessages");
+
+          chatInput.addEventListener("keydown", function(event) {
+              if (event.key === "Enter" && !event.shiftKey) {
+                  event.preventDefault();
+                  chatForm.requestSubmit ? chatForm.requestSubmit() : chatForm.dispatchEvent(new Event("submit", { cancelable: true }));
+              }
+          });
+      
+          chatForm.onsubmit = async function(event) {
+              event.preventDefault(); // Prevent page reload
+      
+              let userMessage = chatInput.value.trim();
+              if (!userMessage) return;
+      
+              if ($("#chatMessages").is(":hidden")) {
+                  $("#chatMessages").show();
+              }
+
+              // Instantly display user message
+              chatMessages.innerHTML += `<div class="message user-message"><strong>You:</strong> ${userMessage}</div>`;
+              chatInput.value = ""; // Clear input field
+              chatInput.style.height = 'auto';
+              chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to latest
+      
+              // Show typing indicator
+              let botThinking = document.createElement("div");
+              botThinking.id = "botThinking";
+              botThinking.className = "message bot-message";
+              botThinking.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-strava me-2" viewBox="0 0 16 16">
+                <path d="M6.731 0 2 9.125h2.788L6.73 5.497l1.93 3.628h2.766zm4.694 9.125-1.372 2.756L8.66 9.125H6.547L10.053 16l3.484-6.875z"/>
+             </svg><em>Typing...</em>`;
+              chatMessages.appendChild(botThinking);
+              chatMessages.scrollTop = chatMessages.scrollHeight;
+
+              let csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || "{{ csrf_token }}";
+      
+              try {
+                  let response = await fetch("{% url 'chatbot' %}", {
+                      method: "POST",
+                      headers: { 
+                          "X-CSRFToken": csrfToken, 
+                          "Content-Type": "application/x-www-form-urlencoded" 
+                      },
+                      body: new URLSearchParams({ "question": userMessage })
+                  });
+      
+                  if (!response.ok) {
+                      throw new Error(`Server returned HTTP ${response.status}`);
+                  }
+
+                  let data = await response.json();
+                  botThinking.remove(); // Remove "Typing..." indicator
+      
+                  // Show bot response
+                  chatMessages.innerHTML += `<div class="message bot-message"> <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-strava me-2" viewBox="0 0 16 16">
+                <path d="M6.731 0 2 9.125h2.788L6.73 5.497l1.93 3.628h2.766zm4.694 9.125-1.372 2.756L8.66 9.125H6.547L10.053 16l3.484-6.875z"/>
+            </svg> ${data.response}</div>`;
+                  chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
+              } catch (error) {
+                  botThinking.remove();
+                  chatMessages.innerHTML += `<div class="message bot-message error"><strong>Error:</strong> ${error.message || 'Could not fetch response.'}</div>`;
+                  chatMessages.scrollTop = chatMessages.scrollHeight;
+              }
+          };
+      });
+
+        // Auto-expand the text box based on content
+        const textarea = document.getElementById("chatInput");
+            textarea.addEventListener('input', () => {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 150) + 'px';
+        });
+
+    </script>
+    <script src="{% static 'javascript/chatbot.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'javascript/visualization.js' %}?v={% now 'U' %}"></script>
+</body>
+</html>
